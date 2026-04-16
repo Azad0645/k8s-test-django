@@ -9,6 +9,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB-test_k8s}
       POSTGRES_USER: ${POSTGRES_USER-test_k8s}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD-OwOtBep9Frut}
+    ports:
+      - "5433:5432"
 
   web:
     build: backend_main_django
@@ -17,7 +19,7 @@ services:
       - ./backend_main_django:/code
     environment: 
       SECRET_KEY: ${WEB_SECRET_KEY-REPLACE_ME}
-      DEBUG: ${WEB_DEBUG-TRUE}
+      DEBUG: ${WEB_DEBUG-FALSE}
       DATABASE_URL: ${WEB_DATABASE_URL-postgres://test_k8s:OwOtBep9Frut@db:5432/test_k8s}
       ALLOWED_HOSTS: ${WEB_ALLOWED_HOSTS-127.0.0.1,localhost}
     ports:

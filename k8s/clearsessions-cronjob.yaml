@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: django-clearsessions
+spec:
+  schedule: "0 3 * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: django-clearsessions
+              image: django_app:latest
+              imagePullPolicy: Never
+              command: ["python", "manage.py", "clearsessions"]
+              env:
+                - name: DEBUG
+                  value: "FALSE"
+                - name: ALLOWED_HOSTS
+                  value: "star-burger.test,localhost,127.0.0.1"
+                - name: SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: django-secret
+                      key: SECRET_KEY
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: django-secret
+                      key: DATABASE_URL

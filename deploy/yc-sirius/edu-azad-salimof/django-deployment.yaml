@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django
+  namespace: edu-azad-salimof
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django
+  template:
+    metadata:
+      labels:
+        app: django
+    spec:
+      containers:
+        - name: django
+          image: fenix16450/django-site-dev:5dca996
+          ports:
+            - containerPort: 80
+          env:
+            - name: SECRET_KEY
+              value: "REPLACE_ME"
+            - name: DEBUG
+              value: "FALSE"
+            - name: ALLOWED_HOSTS
+              value: "*"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: postgres
+                  key: dsn
+            - name: PGSSLROOTCERT
+              value: /root/.postgresql/root.crt
+          volumeMounts:
+            - name: pg-root-crt
+              mountPath: /root/.postgresql
+              readOnly: true
+      volumes:
+        - name: pg-root-crt
+          secret:
+            secretName: pg-root-crt
+            defaultMode: 0600

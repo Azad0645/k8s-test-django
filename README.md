@@ -117,3 +117,35 @@ helm install postgres bitnami/postgresql \
 3. Обновите секрет приложения под новую БД: `kubectl apply -f k8s/secret.yaml`
 4. Примените миграции: `kubectl delete pod django-migrate --ignore-not-found`, `kubectl apply -f k8s/migrate.yaml`, `kubectl logs -f django-migrate`
 5. Перезапустите приложение: `kubectl rollout restart deployment/django`, `kubectl rollout status deployment/django`
+
+## Деплой в dev-кластер
+
+Сборка и публикация Docker образа
+
+```sh
+COMMIT_SHA=$(git rev-parse --short HEAD)
+docker build -t fenix16450/django-site-dev:${COMMIT_SHA} backend_main_django
+docker push fenix16450/django-site-dev:${COMMIT_SHA}
+```
+
+Обновите тег в `deploy/yc-sirius/edu-azad-salimof/django-deployment.yaml` и примените манифесты:
+
+```sh
+kubectl apply -f deploy\yc-sirius\edu-azad-salimof\django-service.yaml
+kubectl apply -f deploy\yc-sirius\edu-azad-salimof\django-deployment.yaml
+```
+
+Примените миграции и создайте суперпользователя:
+
+```sh
+kubectl exec -it deployment/django -n edu-azad-salimof -- python manage.py migrate
+kubectl exec -it deployment/django -n edu-azad-salimof -- python manage.py createsuperuser
+```
+
+## Выделенные ресурсы 
+
+https://sirius-env-registry.website.yandexcloud.net/edu-azad-salimof.html
+
+## Рабочая версия сайта
+
+https://edu-azad-salimof.yc-sirius-dev.pelid.team
